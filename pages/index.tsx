@@ -25,11 +25,7 @@ function _() {
 function Home() {
   return (
     <Page className="flex flex-col gap-12 select-none">
-      <section className="flex flex-col gap-3">
-        <div className="lg:w-2/3">
-          <Chat />
-        </div>
-      </section>
+      <Chat />
     </Page>
   )
 }
