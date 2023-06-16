@@ -1,23 +1,18 @@
 import type { AppProps } from 'next/app'
-import { Analytics } from '@vercel/analytics/react'
-import type { LayoutProps } from '@vercel/examples-ui/layout'
-
-import { getLayout } from '@vercel/examples-ui'
 
 import '@vercel/examples-ui/globals.css'
+import Head from 'next/head'
 
 function App({ Component, pageProps }: AppProps) {
-  const Layout = getLayout<LayoutProps>(Component)
+  // const Layout = getLayout<LayoutProps>(Component)
 
   return (
-    <Layout
-      title="Turingtown"
-      path=""
-      description="Talk like an AI or die"
-    >
+    <>
+      <Head>
+        <title>Turingtown</title>
+      </Head>
       <Component {...pageProps} />
-      <Analytics />
-    </Layout>
+    </>
   )
 }
 
