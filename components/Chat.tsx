@@ -21,6 +21,12 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
       required
       className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 sm:text-sm"
       value={input}
+      onPaste={(e)=>{
+        e.preventDefault()
+      }}
+      onDrop={(e)=>{
+        e.preventDefault()
+      }}
       onKeyDown={(e) => {
         if (e.key === 'Enter') {
           sendMessage(input)
