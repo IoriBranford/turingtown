@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Button } from './Button'
-import { type ChatGPTMessage, ChatLine, LoadingChatLine } from './ChatLine'
+import { type ChatGPTMessage, ChatLine, LoadingChatLine, ChatGPTMessageWithAiScore } from './ChatLine'
 import { useCookies } from 'react-cookie'
+import { AiDetectBody, AiDetectResults } from '../pages/api/aidetect'
 
 const COOKIE_NAME = 'nextjs-example-ai-chat-gpt3'
 
@@ -21,6 +22,7 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
       required
       className="min-w-0 flex-auto appearance-none rounded-md border border-zinc-900/10 bg-white px-3 py-[calc(theme(spacing.2)-1px)] shadow-md shadow-zinc-800/5 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-500/10 sm:text-sm"
       value={input}
+      maxLength={8000}
       onPaste={(e)=>{
         e.preventDefault()
       }}
@@ -51,7 +53,7 @@ const InputMessage = ({ input, setInput, sendMessage }: any) => (
 )
 
 export function Chat() {
-  const [messages, setMessages] = useState<ChatGPTMessage[]>(initialMessages)
+  const [messages, setMessages] = useState<ChatGPTMessageWithAiScore[]>(initialMessages)
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [cookie, setCookie] = useCookies([COOKIE_NAME])
@@ -67,12 +69,21 @@ export function Chat() {
   // send message to API /api/chat endpoint
   const sendMessage = async (message: string) => {
     setLoading(true)
+    const aiDetectResponse = await fetch('/api/aidetect', {
+      method: 'POST',
+      body: JSON.stringify({text: message} as AiDetectBody)
+    })
+    const aiDetectResults: AiDetectResults = await aiDetectResponse.json()
+    if (aiDetectResults.error) {
+      console.log(aiDetectResults.error)
+    }
     const newMessages = [
       ...messages,
-      { role: 'user', content: message } as ChatGPTMessage,
+      { role: 'user', content: message, aiScore: aiDetectResults.score } as ChatGPTMessageWithAiScore,
     ]
     setMessages(newMessages)
-    const last10messages = newMessages.slice(-10) // remember last 10 messages
+    const last10messages = newMessages.slice(-10)
+      .map(({role, content})=>({role, content} as ChatGPTMessage))
 
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -121,8 +132,8 @@ export function Chat() {
 
   return (
     <div className="rounded-2xl border-zinc-100  lg:border lg:p-6">
-      {messages.slice(loading ? -1 : -2).map(({ content, role }, index) => (
-        <ChatLine key={index} role={role} content={content} />
+      {messages.slice(loading ? -1 : -2).map(({ content, role, aiScore }, index) => (
+        <ChatLine key={index} role={role} aiScore={aiScore} content={content} />
       ))}
 
       {loading && <LoadingChatLine />}

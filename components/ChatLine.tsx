@@ -11,6 +11,10 @@ export interface ChatGPTMessage {
   content: string
 }
 
+export type ChatGPTMessageWithAiScore = ChatGPTMessage & {
+  aiScore?: number
+}
+
 // loading placeholder animation for the chat line
 export const LoadingChatLine = () => (
   <div className="flex min-w-full animate-pulse px-4 py-5 sm:px-6">
@@ -42,12 +46,13 @@ const convertNewLines = (text: string) =>
     </span>
   ))
 
-export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
+export function ChatLine({ role = 'assistant', content, aiScore }: ChatGPTMessageWithAiScore) {
   if (!content) {
     return null
   }
   const formatteMessage = convertNewLines(content)
 
+  const aiLikeString = aiScore ? ` (${Math.floor(aiScore*100)}% likely to be AI)` : ''
   return (
     <div
       className={
@@ -60,7 +65,7 @@ export function ChatLine({ role = 'assistant', content }: ChatGPTMessage) {
             <div className="flex-1 gap-4">
               <p className="font-large text-xxl text-gray-900">
                 <a href="#" className="hover:underline">
-                  {role == 'assistant' ? 'AI' : 'You'}
+                  {role == 'assistant' ? 'AI' : `You${aiLikeString}`}
                 </a>
               </p>
               <p
