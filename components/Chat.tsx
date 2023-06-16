@@ -121,7 +121,7 @@ export function Chat() {
 
   return (
     <div className="rounded-2xl border-zinc-100  lg:border lg:p-6">
-      {messages.map(({ content, role }, index) => (
+      {messages.slice(loading ? -1 : -2).map(({ content, role }, index) => (
         <ChatLine key={index} role={role} content={content} />
       ))}
 
